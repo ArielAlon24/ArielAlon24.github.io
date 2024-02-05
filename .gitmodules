@@ -1,0 +1,3 @@
+[submodule "pyges"]
+	path = pyges
+	url = https://github.com/ArielAlon24/pyges.git
