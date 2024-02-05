@@ -21,14 +21,14 @@ def navbar() -> Nav:
     return Nav(
         [
             Div(
-                A("Ariel Alon", attributes={Attribute.HREF: "/website"}),
+                A("Ariel Alon", attributes={Attribute.HREF: "/"}),
                 attributes={Attribute.CLASS: "left-nav"},
             ),
             Div(
                 A(
                     Img(
                         attributes={
-                            Attribute.SRC: "website/assets/github-mark.svg",
+                            Attribute.SRC: "/assets/github-mark.svg",
                             Attribute.ALT: "Github Icon",
                             Attribute.CLASS: "icon",
                         }
@@ -50,7 +50,7 @@ def head() -> Head:
                 attributes={
                     Attribute.REL: "stylesheet",
                     Attribute.TYPE: "text/css",
-                    Attribute.HREF: "website/styles.css",
+                    Attribute.HREF: "/styles.css",
                 }
             ),
         ]
