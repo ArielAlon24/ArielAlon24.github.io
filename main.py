@@ -21,14 +21,14 @@ def navbar() -> Nav:
     return Nav(
         [
             Div(
-                A("Ariel Alon", attributes={Attribute.HREF: "/"}),
+                A("Ariel Alon", attributes={Attribute.HREF: "/website"}),
                 attributes={Attribute.CLASS: "left-nav"},
             ),
             Div(
                 A(
                     Img(
                         attributes={
-                            Attribute.SRC: "/assets/github-mark.svg",
+                            Attribute.SRC: "website/assets/github-mark.svg",
                             Attribute.ALT: "Github Icon",
                             Attribute.CLASS: "icon",
                         }
