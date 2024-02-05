@@ -50,7 +50,7 @@ def head() -> Head:
                 attributes={
                     Attribute.REL: "stylesheet",
                     Attribute.TYPE: "text/css",
-                    Attribute.HREF: "/styles.css",
+                    Attribute.HREF: "website/styles.css",
                 }
             ),
         ]
