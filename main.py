@@ -121,21 +121,6 @@ def blog_card(blog: Page) -> A:
     )
 
 
-@site.add("about.md")
-def about(content: str) -> Html:
-    return Html(
-        [
-            head(),
-            Body(
-                [
-                    navbar(),
-                    Article([H(size=1, value="About"), content]),
-                ]
-            ),
-        ]
-    )
-
-
 def format_date(d: datetime.date) -> str:
     return d.strftime("%d-%m-%Y")
 
