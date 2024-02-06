@@ -5,7 +5,7 @@ date: 2024-12-30
 
 ## Background
 
-One day, my cousin, a Python backend engineer, introduced me to a problem his team encountered that week as work, but couldn't solve.
+One day, my cousin, a Python backend engineer, introduced me to a problem his team encountered that week at work, but couldn't solve.
 
 ## Problem
 
