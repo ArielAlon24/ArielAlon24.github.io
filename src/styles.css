@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Iosevka-Light";
-  src: url("assets/fonts/IosevkaNerdFontMono-Light.ttf") format("woff2");
+  src: url("assets/fonts/Iosevka-Light.woff2") format("woff2");
 }
 
 :root {
@@ -123,6 +123,7 @@ article {
 
 code {
   background: var(--gruvbox-dark1);
+  font-size: var(--font-size-normal);
   font-family: "Iosevka-Light", monospace;
 }
 
@@ -172,18 +173,20 @@ ol {
 
 .code {
   background: var(--gruvbox-dark1);
+  font-size: var(--font-size-normal);
   margin-top: 2em;
   margin-bottom: 2em;
   overflow-x: auto;
 }
 
 code > span {
+  font-size: var(--font-size-normal);
   font-family: "Iosevka-Light";
 }
 
 pre {
   line-height: 150%;
-  font-size: 12pt;
+  font-size: var(--font-size-normal);
 }
 
 td.linenos .normal,
@@ -411,3 +414,49 @@ span.linenos.special {
 .code .il {
   color: var(--gruvbox-purple);
 } /* Literal.Number.Integer.Long */
+
+@media (max-width: 768px) {
+  body {
+    margin: 0 10vw; /* Adjust margins for smaller screens */
+  }
+
+  .navbar a {
+    margin-top: 1rem; /* Adjust top margin */
+  }
+
+  .blog-cards {
+    flex-direction: column; /* Ensure cards are stacked on small screens */
+    gap: 1rem; /* Adjust gap between cards */
+  }
+
+  .blog-card {
+    flex-direction: column;
+    gap: 0.5rem; /* Adjust gap */
+    padding: 1rem; /* Adjust padding */
+    text-align: center;
+  }
+
+  article,
+  .code,
+  p,
+  ul,
+  ol,
+  code,
+  pre {
+    font-size: var(
+      --font-size-small
+    ); /* Adjust font size for better readability */
+  }
+
+  h1 {
+    font-size: var(--font-size-large); /* Adjust heading size for impact */
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: var(--font-size-medium); /* Scale down heading sizes */
+  }
+}
