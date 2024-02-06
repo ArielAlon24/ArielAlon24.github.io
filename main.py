@@ -21,7 +21,10 @@ def navbar() -> Nav:
     return Nav(
         [
             Div(
-                A("Ariel Alon", attributes={Attribute.HREF: "/"}),
+                A(
+                    "Ariel Alon",
+                    attributes={Attribute.HREF: "https://www.arielalon.com/"},
+                ),
                 attributes={Attribute.CLASS: "left-nav"},
             ),
             Div(
@@ -50,7 +53,7 @@ def head() -> Head:
                 attributes={
                     Attribute.REL: "stylesheet",
                     Attribute.TYPE: "text/css",
-                    Attribute.HREF: "/styles.css",
+                    Attribute.HREF: "https://www.arielalon.com/styles.css",
                 }
             ),
         ]
@@ -116,7 +119,8 @@ def blog_card(blog: Page) -> A:
         ],
         {
             Attribute.CLASS: "blog-card",
-            Attribute.HREF: str(blog.out.relative_to(config.out)),
+            Attribute.HREF: "https://www.arielalon.com/"
+            + str(blog.out.relative_to(config.out)),
         },
     )
 
