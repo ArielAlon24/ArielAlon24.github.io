@@ -49,6 +49,12 @@ def head() -> Head:
     return Head(
         [
             Title("Ariel Alon"),
+            Meta(
+                attributes={
+                    Attribute.NAME: "viewport",
+                    Attribute.CONTENT: "width=device-width, initial-scale=1.0",
+                },
+            ),
             Link(
                 attributes={
                     Attribute.REL: "stylesheet",
