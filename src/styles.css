@@ -37,6 +37,7 @@
 }
 
 body {
+  font-size: var(--font-size-normal);
   background: var(--gruvbox-dark0);
   font-family: "Iosevka-Light", sans-serif;
   margin: 0 25vw 50vh;
@@ -185,12 +186,13 @@ code > span {
 }
 
 pre {
-  line-height: 150%;
   font-size: var(--font-size-normal);
+  line-height: 150%;
 }
 
 td.linenos .normal,
 span.linenos {
+  font-size: var(--font-size-normal);
   font-family: "Iosevka-Light";
   color: var(--gruvbox-light4);
   background-color: transparent;
@@ -437,15 +439,12 @@ span.linenos.special {
   }
 
   article,
-  .code,
   p,
   ul,
   ol,
   code,
   pre {
-    font-size: var(
-      --font-size-small
-    ); /* Adjust font size for better readability */
+    font-size: var(--font-size-small);
   }
 
   h1 {
