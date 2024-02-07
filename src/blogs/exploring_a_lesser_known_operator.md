@@ -1,6 +1,6 @@
 ---
 name: "Exploring A Lesser-Known Operator"
-date: 2024-07-02
+date: 2024-02-07
 ---
 
 ## Introduction
