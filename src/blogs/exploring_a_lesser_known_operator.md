@@ -1,5 +1,5 @@
 ---
-name: "Exploring Python's Lesser-Known Operator"
+name: "Exploring A Lesser-Known Operator"
 date: 2024-07-02
 ---
 
