@@ -104,7 +104,14 @@ def index(content: str) -> Html:
                         ]
                     ),
                     Div(
-                        [blog_card(b) for b in site.pages(creator=blog)],
+                        [
+                            blog_card(b)
+                            for b in sorted(
+                                site.pages(creator=blog),
+                                key=lambda x: x.properties["date"],
+                                reverse=True,
+                            )
+                        ],
                         {Attribute.CLASS: "blog-cards"},
                     ),
                 ]

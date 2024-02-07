@@ -1,6 +1,6 @@
 ---
 name: "Class Property Decorator"
-date: 2024-12-30
+date: 2024-02-02
 ---
 
 ## Background
