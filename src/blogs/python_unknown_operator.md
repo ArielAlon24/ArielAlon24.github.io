@@ -1,6 +1,6 @@
 ---
 name: "Exploring Python's Lesser-Known Operator"
-date: 2024-12-30
+date: 2024-07-02
 ---
 
 ## Introduction
