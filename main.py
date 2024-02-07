@@ -52,7 +52,7 @@ def head() -> Head:
             Meta(
                 attributes={
                     Attribute.NAME: "viewport",
-                    Attribute.CONTENT: "width=device-width, initial-scale=1.0",
+                    Attribute.CONTENT: "width=device-width, initial-scale=1",
                 },
             ),
             Link(
