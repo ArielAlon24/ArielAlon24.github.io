@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Ariel Alon </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="https://www.arielalon.com/styles.css">
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="left-nav">
+                <a href="https://www.arielalon.com/"> Ariel Alon </a>
+            </div>
+            <div class="right-nav">
+                <a href="https://github.com/ArielAlon24">
+                    <img src="/assets/github-mark.svg" alt="Github Icon" class="icon">
+                </a>
+            </div>
+        </nav>
+        <article>
+            <div class="heading">
+                <h1> Exploring Python&#x27;s Lesser-Known Operator </h1>
+                <p> 30-12-2024 </p>
+            </div>
+            <h2>Introduction</h2>
+<p>Many are familiar with Python's capability to customize the behavior of various operators through dunder methods. If you're new to this concept, it's quite straightforward. Let's explore an example that implements addition and subtraction for complex numbers.</p>
+<p>First, we'll define a simple class to represent a complex number, complete with <code>__init__</code> and <code>__str__</code> methods for initialization and string representation, respectively.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Complex</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">real</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">imaginary</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">real</span> <span class="o">=</span> <span class="n">real</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">imaginary</span> <span class="o">=</span> <span class="n">imaginary</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">real</span><span class="si">}</span><span class="s2"> + </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">imaginary</span><span class="si">}</span><span class="s2">i&quot;</span>
+</code></pre></div></td></tr></table></div>
+
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">c1</span> <span class="o">=</span> <span class="n">Complex</span><span class="p">(</span><span class="n">real</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">imaginary</span><span class="o">=</span><span class="mf">2.0</span><span class="p">)</span>
+<span class="go">1.0 + 2.0i</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c2</span> <span class="o">=</span> <span class="n">Complex</span><span class="p">(</span><span class="n">real</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span> <span class="n">imaginary</span><span class="o">=</span><span class="mf">4.0</span><span class="p">)</span>
+<span class="go">3.0 + 4.0i</span>
+</code></pre></div></td></tr></table></div>
+
+<h2>Complex Addition</h2>
+<p>Attempting to add two <code>Complex</code> numbers without overriding the appropriate method will result in an error.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">c1</span> <span class="o">+</span> <span class="n">c2</span>
+<span class="gt">Traceback (most recent call last):</span>
+  File <span class="nb">&quot;/Users/arielalon/Programming/Python/complex/main.py&quot;</span>, line <span class="m">18</span>, in <span class="n">&lt;module&gt;</span>
+<span class="w">    </span><span class="nb">print</span><span class="p">(</span><span class="n">c1</span> <span class="o">+</span> <span class="n">c2</span><span class="p">)</span>
+<span class="w">          </span><span class="pm">~~~^~~~</span>
+<span class="gr">TypeError</span>: <span class="n">unsupported operand type(s) for +: &#39;Complex&#39; and &#39;Complex&#39;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>But, we know how to add complex numbers—it's simply the sum of their real and imaginary parts. To accomplish this, we can use another dunder method: <code>__add__</code>.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Complex</span><span class="p">:</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">:</span> <span class="n">Complex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Complex</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Complex</span><span class="p">(</span>
+            <span class="n">real</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">real</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">real</span><span class="p">,</span>
+            <span class="n">imaginary</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">imaginary</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">imaginary</span>
+        <span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Remember to import <code>__annotations__</code> from the <code>future</code> module to allow the use of the type annotation <code>Complex</code> within its body.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">c1</span> <span class="o">+</span> <span class="n">c2</span>
+<span class="go">4.0 + 6.0i</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Great, now addition works! But that's not all—we can override the <code>-</code> operator with <code>__sub__</code>, the <code>*</code> operator with <code>__mul__</code>, and much more. You can find a list of basic arithmetic operations that can be implemented <a href="https://docs.python.org/3/reference/datamodel.html#emulating-numeric-types">here</a>.</p>
+<h2>The Unknown Operator</h2>
+<p>A few days ago, while working with <a href="https://numpy.org/">numpy</a>, an open-source numerical computing library, I stumbled upon an operator that I had never seen before: the <code>@</code> operator. In numpy, it's used for matrix multiplication, hence its dunder method name <code>__matmul__</code>. This operator, introduced in <a href="https://peps.python.org/pep-0465/">PEP 465</a>, was intended solely for matrix multiplication, which is why it doesn't even appear in Python's built-ins - Python doesn't have any matrix-related modules.</p>
+<p>Does this mean the operator can only be used for this specific task? Not at all, but after searching for use cases, I couldn't find anything.</p>
+<h2>Email Addresses</h2>
+<p>An email consists of two parts: the local part and the domain, separated by, well, you guessed it, an <code>@</code> symbol. The email address: <code>test@example.com</code>, has <code>test</code> as its local part and <code>example.com</code> as its domain. The dunder <code>__matmul__</code>, or specifically <code>__rmatmul__</code> (an <code>r</code> can be added to each binary operation dunder, signifying that this dunder will execute when the object is on the right-hand side of that operation, with the <code>other</code> parameter being the left-hand side), can be utilized to create a method to concatenate the local and domain parts of an email address in a pythonic way.</p>
+<p>First, we need to define a class representing an email address, nothing too sophisticated:</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Email</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">local</span> <span class="o">=</span> <span class="n">local</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">local</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Now, because we want achieve the ability to create an <code>Email</code> object using a <code>@</code> binary operation between two strings, we'll create a subclass of <code>str</code> for our domain type, as python wont allow creating dunder methods for built-in types.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Domain</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">domain</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">domain</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Lastly, we'll add the <code>__rmatmul__</code> dunder to make that binary operation possible.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+
+<span class="k">class</span> <span class="nc">Domain</span><span class="p">(</span><span class="nb">str</span><span class="p">):</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__rmatmul__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">local</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Email</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;local must be of type str, found: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">local</span><span class="p">)</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Email</span><span class="p">(</span><span class="n">local</span><span class="o">=</span><span class="n">local</span><span class="p">,</span> <span class="n">domain</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Note that I added a check to ensure the left-hand side, named <code>local</code>, is of type string, just to ensure this operation isn't misused.</p>
+<p>And there we have it! A simple and pythonic method for creating email addresses!</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="gp">&gt;&gt;&gt; </span><span class="n">domain</span> <span class="o">=</span> <span class="n">Domain</span><span class="p">(</span><span class="s2">&quot;example.com&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">local</span> <span class="o">=</span> <span class="s2">&quot;test&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">email</span> <span class="o">=</span> <span class="n">local</span> <span class="o">@</span> <span class="n">domain</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">email</span>
+<span class="go">test@example.com</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Of course, this is more of a curiosity than a practical tool, but it's a great dive into Python's hidden dunder methods.</p>
+        </article>
+    </body>
+</html>
