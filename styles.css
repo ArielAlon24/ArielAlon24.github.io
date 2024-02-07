@@ -180,19 +180,17 @@ ol {
   overflow-x: auto;
 }
 
-code > span {
+.code > span {
   font-size: var(--font-size-normal);
   font-family: "Iosevka-Light";
 }
 
 pre {
-  font-size: var(--font-size-normal);
   line-height: 150%;
 }
 
 td.linenos .normal,
 span.linenos {
-  font-size: var(--font-size-normal);
   font-family: "Iosevka-Light";
   color: var(--gruvbox-light4);
   background-color: transparent;
@@ -417,7 +415,10 @@ span.linenos.special {
   color: var(--gruvbox-purple);
 } /* Literal.Number.Integer.Long */
 
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
+  * {
+    font-size: var(--font-size-small);
+  }
   body {
     margin: 0 10vw;
   }
@@ -438,7 +439,12 @@ span.linenos.special {
     text-align: center;
   }
 
+  .code > * {
+    font-size: var(--font-size-normal);
+  }
+
   article,
+  div,
   p,
   ul,
   ol,
@@ -449,13 +455,5 @@ span.linenos.special {
 
   h1 {
     font-size: var(--font-size-large);
-  }
-
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-size: var(--font-size-medium);
   }
 }
