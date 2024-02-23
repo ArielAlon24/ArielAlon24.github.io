@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Ariel Alon </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="https://www.arielalon.com/styles.css">
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="left-nav">
+                <a href="https://www.arielalon.com/"> Ariel Alon </a>
+            </div>
+            <div class="right-nav">
+                <a href="https://github.com/ArielAlon24">
+                    <img src="/assets/github-mark.svg" alt="Github Icon" class="icon">
+                </a>
+            </div>
+        </nav>
+        <article>
+            <div class="heading">
+                <h1> 40 New Laptops </h1>
+                <p> 18-02-2024 </p>
+            </div>
+            <h2>Surprise</h2>
+<p>In my programming class at school, each student has the option to bring their own laptop or utilize one of the numerous laptops and PCs provided in class. Recently, my class received a shipment of about 40 new laptops.</p>
+<p><img alt="Many Laptops" src="/assets/images/many-laptops.webp" /></p>
+<p>Each of these devices required a comprehensive setup process - installation of various software, programming languages with their related modules, and more. Traditionally, this time consuming task fell upon a handful of dedicated students willing to invest hours into the process, often to discover at the very end that Python was still not properly configured in the system's path.</p>
+<h2>Idea</h2>
+<p>Not sure why, but I felt like there was something that could be done to simplify this process. With a motivation to learn about Windows automation, I started a new Git repository named Winstaller with a fellow classmate. A script designed to automatically download and install software, programming languages, and more.</p>
+<h2>Batch? PowerShell?</h2>
+<p>The Git repository was successfully initialized, but what next? As a first instinct, I created a <a href="https://en.wikipedia.org/wiki/Batch_file">batch file</a>, the Windows scripting file counterpart to Unix's bash. However, after consulting ChatGPT and conducting some Google searches, I encountered several limitations, especially regarding web requests. While technically possible by using a wrapper around PowerShell commands, this approach closely resembles the use of an <code>exec()</code> call inside a Python script resulting in less than elegant code.</p>
+<p>Therefore, I decided to opt for batch's more capable sibling, <a href="https://en.wikipedia.org/wiki/PowerShell">PowerShell</a>, and deleted the previously created batch file. Opening a new file named <code>installer.ps1</code>, we were in business. The goal is to create a script that will install Python, in the correct version and then run a python script in the same folder.</p>
+<h2>Installing Python</h2>
+<p>Let's start with a simple print statement:</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nb">Write-Host</span> <span class="s2">&quot;Starting installation script.&quot;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Next, we need to check if Python is already installed; if it's not, we'll proceed to install it. To determine if Python is installed, we can use the command python -V. If we receive an output in either stdout (indicating a successful operation) or stderr (indicating an error), we can conclude that Python is indeed installed.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">$pythonVersion</span> <span class="p">=</span> <span class="p">&amp;{</span><span class="n">python</span> <span class="n">-V</span><span class="p">}</span> <span class="n">2</span><span class="p">&gt;&amp;</span><span class="n">1</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Notice variable deceleration is super simple, using a <code>$&lt;name&gt; = value</code> syntax. The <code>2&gt;&amp;1</code> redirection merges both stderr and stdout into the same variable, <code>$pythonVersion</code>, allowing us to handle the output uniformly. Now, to check if <code>$pythonVersion</code> variable is empty or not we can use the built-in <code>string</code> function <code>[string]::IsNullOrWhiteSpace()</code> in the end</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">if</span> <span class="p">(</span><span class="no">[string]</span><span class="p">::</span><span class="n">IsNullOrWhiteSpace</span><span class="p">(</span><span class="nv">$pythonVersion</span><span class="p">))</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Python is not installed, proceeding with installation...&quot;</span>
+
+    <span class="c"># -=- Here we&#39;ll install python -=-</span>
+
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nb">Write-Host</span> <span class="s2">&quot;Python is already installed: $pythonVersion&quot;</span>
+<span class="p">}</span>
+</code></pre></div></td></tr></table></div>
+
+<p>How to install Python you ask? using the built-ins <code>Invoke-WebRequest</code> to download the
+Python installer, and <code>Start-Process</code> to run the installer.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span>
+<span class="normal">9</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="c"># Download Python Installer</span>
+<span class="nv">$installerUri</span> <span class="p">=</span> <span class="s2">&quot;https://www.python.org/ftp/python/3.10.9/python-3.10.9-amd64.exe&quot;</span>
+<span class="nv">$installerPath</span> <span class="p">=</span> <span class="s2">&quot;$env:TEMP\python-3.10.9-amd64.exe&quot;</span>
+<span class="nb">Invoke-WebRequest</span> <span class="n">-Uri</span> <span class="nv">$installerUri</span> <span class="n">-OutFile</span> <span class="nv">$installerPath</span> <span class="n">-ErrorAction</span> <span class="n">Stop</span>
+
+<span class="c"># Install Python Installer</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Installing Python 3.10.9...&quot;</span>
+<span class="nb">Start-Process</span> <span class="n">-FilePath</span> <span class="nv">$installerPath</span> <span class="n">-ArgumentList</span> <span class="s2">&quot;/quiet InstallAllUsers=1 PrependPath=1 TargetDir=C:\Python310-64&quot;</span> <span class="n">-Wait</span> <span class="n">-ErrorAction</span> <span class="n">Stop</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Python 3.10.9 installation completed.&quot;</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Lastly, we need to run the Python script that we'll discuss later, this is super simple</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span>
+<span class="normal">7</span>
+<span class="normal">8</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nv">$env:Path</span> <span class="p">+=</span> <span class="s2">&quot;;C:\Python310-64&quot;</span>
+
+<span class="nv">$script</span> <span class="p">=</span> <span class="s2">&quot;script.py&quot;</span>
+<span class="nv">$executable</span> <span class="p">=</span> <span class="s2">&quot;C:\Python310-64\python.exe&quot;</span>
+
+<span class="c"># Execute the Python script</span>
+<span class="nb">Write-Host</span> <span class="s2">&quot;Running script.&quot;</span>
+<span class="p">&amp;</span> <span class="nv">$executable</span> <span class="nv">$script</span>
+</code></pre></div></td></tr></table></div>
+
+<p>The only important thing to notice here, is the manual appending of the Python installation to the path, that's because PowerShell won't update automatically the path unless restarted.</p>
+<h2>The Python Script</h2>
+<p>After we got Python installed there is no reason to keep on working in PowerShell, so here come a new file <code>script.py</code>, to make things OOP I, with the help of my classmate created a class to represent a program, with an <code>__init__</code>, <code>download</code>, <code>install</code> and <code>clean</code> methods.</p>
+<p>Let's first look on the <code>__init__</code> method</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Program</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">installer</span> <span class="o">=</span> <span class="n">url</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div></td></tr></table></div>
+
+<p>Using the fact that the installer name is the same as the last part of the URL we can make the constructor work with two supplied parameters.</p>
+<h2>Download and Install methods</h2>
+<p>Now for the <code>download</code> method, utilizing the <code>requests</code> module, wait, we need to install the <code>requests</code> module!</p>
+<h2>Installing and Using Python Modules inside a Python script</h2>
+<p>A bit of a complex header for a simple task, and quite similar to the way we handled the existence of Python in the PowerShell script. Firstly, the <code>import</code> python keyword calls a the dunder function <code>__import__</code> with a <code>str</code> type for the name of the module to be imported. So to check if a module can be imported we can use the <code>__import__</code> dunder with it's name and check if any exceptions occur, especially <code>ImportError</code> which indicates this module isn't downloaded yet.</p>
+<p>Using the <code>subprocess</code> module which don't be scared, is a built-in, we can use <code>pip</code> - Python's package manger. To install any module with the following line:</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span>
+<span class="normal">4</span>
+<span class="normal">5</span>
+<span class="normal">6</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;-q&quot;</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p><code>sys</code> was imported (Again, a built-in) to retrieve the executable path.</p>
+<p>Now we can construct a simple function, one that checks if a certain module exists, if it does it logs to the screen it's existence, otherwise, downloads it.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<span class="k">def</span> <span class="nf">install_module</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">__import__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Package &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; was not found. Installing...&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;pip&quot;</span><span class="p">,</span> <span class="s2">&quot;install&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;-q&quot;</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Module </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> was installed successfully.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to install module &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">e</span>
+</code></pre></div></td></tr></table></div>
+
+<p>For those who aren't familiar with the <code>logging</code>, think of it as a pretty-print statement, I've used it to give better feedback on the script runtime. Logs look something like this:</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="mf">2024</span><span class="o">-</span><span class="mf">02</span><span class="o">-</span><span class="mf">19</span><span class="w"> </span><span class="mf">13</span><span class="p">:</span><span class="mf">07</span><span class="p">:</span><span class="mf">09</span><span class="p">,</span><span class="mf">128</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">INFO</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Package</span><span class="w"> </span><span class="err">&#39;</span><span class="n">requests</span><span class="err">&#39;</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">found</span><span class="mf">.</span><span class="w"> </span><span class="n">Installing</span><span class="mf">...</span>
+<span class="mf">2024</span><span class="o">-</span><span class="mf">02</span><span class="o">-</span><span class="mf">19</span><span class="w"> </span><span class="mf">13</span><span class="p">:</span><span class="mf">07</span><span class="p">:</span><span class="mf">11</span><span class="p">,</span><span class="mf">448</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">INFO</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">Module</span><span class="w"> </span><span class="n">requests</span><span class="w"> </span><span class="n">was</span><span class="w"> </span><span class="n">installed</span><span class="w"> </span><span class="n">successfully</span><span class="mf">.</span>
+</code></pre></div></td></tr></table></div>
+
+<p>This exact format can be acheived by changing the global format option for the logging module (It's more correct to create a specifiec logger for each main object in the system, but as of the small size of this script a single main logging entry is sufficient).</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(levelname)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+
+<h2>Download and Install methods V2 (now we have requests)</h2>
+<h3>Download</h3>
+<p>Download was straightforward, by using the <code>requests</code> module we obtained access to, and making a get request to the installer URL, with the additional <code>stream</code> flag set to <code>True</code>. The installer file will be sent and chunk by chunk will be saved.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">download</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">as</span> <span class="n">r</span><span class="p">:</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+                <span class="n">total_size_in_bytes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;content-length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span>
+                    <span class="n">total</span><span class="o">=</span><span class="n">total_size_in_bytes</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;iB&quot;</span><span class="p">,</span> <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">installer</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">CHUNK_SIZE</span><span class="p">):</span>
+                        <span class="n">progress_bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                <span class="n">progress_bar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">total_size_in_bytes</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">progress_bar</span><span class="o">.</span><span class="n">n</span> <span class="o">!=</span> <span class="n">total_size_in_bytes</span><span class="p">:</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;ERROR, something went wrong&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloaded &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; successfully.&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error downloading &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error downloading &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>In order to make the user understand clearly what part of the script is running, also here some log messages were added, and in top of that, a simple progress bar was added using the <code>tqdm</code> module.</p>
+<h3>Install</h3>
+<p>Install on the other hand, involved some understanding. Windows installers can vary but they usually come in one of two forms, as an executable or as a <code>.msi</code> file which is the standard Windows installer. So, to properly run the installer we need to match the installer suffix to one of the ways, this is done by a simple <code>if</code> <code>else</code> block.</p>
+<p>To run an executable installer, it's possible just to provide it as an argument to the <code>subprocess.run</code> function. But in the case of the <code>.msi</code> file we need to use the <a href="https://en.wikipedia.org/wiki/Windows_Installer">Window Installer</a>(<code>msiexec.exe</code>) which is the software that runs those installers. Also quite simple to run just, the software name needs to be passed as well. Finnaly we got</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">install</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installing </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">installer</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.exe&quot;</span><span class="p">):</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">installer</span><span class="p">,</span> <span class="s2">&quot;/S&quot;</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">installer</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.msi&quot;</span><span class="p">):</span>
+            <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;msiexec&quot;</span><span class="p">,</span> <span class="s2">&quot;/i&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">installer</span><span class="p">,</span> <span class="s2">&quot;/qn&quot;</span><span class="p">],</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; installation initiated successfully.&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CalledProcessError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installation of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Installation of &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>The <code>/S</code> and <code>/qn</code> flags are there to make the installation quiet.</p>
+<h2>Final Details</h2>
+<p>The last method that was added to this class is a <code>clean</code> method, a short one for deleting the used installer.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
+<span class="normal">2</span>
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clean</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cleaning </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> installer.&quot;</span><span class="p">)</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">installer</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+
+<p>And lastly, the <code>main</code> function had to be created, the one repsonisible for creating all <code>Program</code> instances, downloading, installing and cleaning them. Additionaly, this method also installs some modules that needed to be avialable system wide, this is done with the <code>install_module</code> function discussed earlier.</p>
+<div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal"> 1</span>
+<span class="normal"> 2</span>
+<span class="normal"> 3</span>
+<span class="normal"> 4</span>
+<span class="normal"> 5</span>
+<span class="normal"> 6</span>
+<span class="normal"> 7</span>
+<span class="normal"> 8</span>
+<span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
+<span class="normal">12</span>
+<span class="normal">13</span>
+<span class="normal">14</span>
+<span class="normal">15</span>
+<span class="normal">16</span>
+<span class="normal">17</span>
+<span class="normal">18</span>
+<span class="normal">19</span>
+<span class="normal">20</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">programs</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># -+- Programs -+-</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">program</span> <span class="ow">in</span> <span class="n">programs</span><span class="p">:</span>
+        <span class="n">program</span><span class="o">.</span><span class="n">download</span><span class="p">()</span>
+        <span class="n">program</span><span class="o">.</span><span class="n">install</span><span class="p">()</span>
+        <span class="n">program</span><span class="o">.</span><span class="n">clean</span><span class="p">()</span>
+
+    <span class="n">modules</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># -+- Modules -+-</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">module</span> <span class="ow">in</span> <span class="n">modules</span><span class="p">:</span>
+        <span class="n">install_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+
+<p>And that's it.</p>
+<h3>!!!!</h3>
+<p>A single day after running this script on <strong>ALL</strong> 40 computers, and even ensuring it ran properly and installed everything that needed to be installed,</p>
+<p>A classmate took a computer - "Ariel, you forgot to install PyCharm on this one", and then another one - "Oh Ariel, there's no BlueJ here" and more and more.</p>
+<p>Yes, someone forgot to tell me that Disk C clears itself <strong>ENTIRELY</strong> after a restart.</p>
+<p>I guess I've learned a lot about PowerShell, and so have you.</p>
+        </article>
+    </body>
+</html>
