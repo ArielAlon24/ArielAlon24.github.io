@@ -62,6 +62,14 @@ def head() -> Head:
                     Attribute.HREF: "/styles.css",
                 }
             ),
+            Script(
+                attributes={
+                    DataAttribute(
+                        "goatcounter"
+                    ): "https://arielalon.goatcounter.com/count",
+                    Attribute.SRC: "//gc.zgo.at/count.js",
+                }
+            ),
         ]
     )
 
@@ -142,4 +150,4 @@ def format_date(d: datetime.date) -> str:
 
 
 if __name__ == "__main__":
-    site.build()
+    site.debug()
