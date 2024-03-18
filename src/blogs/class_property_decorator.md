@@ -30,7 +30,7 @@ This isn't convenient as we want to provide a way for the user to interact with 
 
 My first thought for solving this problem was to chain decorators - using both `classmethod` and `property`. However, to my surprise, this exact functionality is deprecated from Python 3.11, as mentioned in the [Python docs](https://docs.python.org/3/howto/descriptor.html#class-methods).
 
-I quickly realized descriptors could do the job, but I wasn't sure how. I started with the `__init__` method of the `class_property`, that will get the method it decorates as an argument. For naming conventions, I created a private class `_ClassProperty` and then renamed it to `class_property`. We will ignore the last assignment fron now on:
+I quickly realized descriptors could do the job, but I wasn't sure how. I started with the `__init__` method of the `class_property`, that will get the method it decorates as an argument. For naming conventions, I created a private class `_ClassProperty` and then renamed it to `class_property`. We will ignore the last assignment from now on:
 
 ```python
 class _ClassProperty:

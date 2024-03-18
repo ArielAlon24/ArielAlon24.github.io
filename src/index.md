@@ -1,3 +1,3 @@
-Hey there! I'm Ariel Alon, and welcome to my new blog. This blog is all about my adventures and discoveries in programming, math, music, and whatever else. I will try to update it every week with a new idea, small project or an interesting find.
+Hello, I'm Ariel Alon, and I like programming. This is my blog, where I occasionally post about something interesting I've found or a small project I've been working on.
 
-Here you can find all of my recent blogs (sorted new first):
+## Recent Blogs
