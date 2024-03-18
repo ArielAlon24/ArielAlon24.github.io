@@ -45,7 +45,7 @@
 <p>This isn't convenient as we want to provide a way for the user to interact with metadata as a class attribute rather than a function.</p>
 <h2>Investigation</h2>
 <p>My first thought for solving this problem was to chain decorators - using both <code>classmethod</code> and <code>property</code>. However, to my surprise, this exact functionality is deprecated from Python 3.11, as mentioned in the <a href="https://docs.python.org/3/howto/descriptor.html#class-methods">Python docs</a>.</p>
-<p>I quickly realized descriptors could do the job, but I wasn't sure how. I started with the <code>__init__</code> method of the <code>class_property</code>, that will get the method it decorates as an argument. For naming conventions, I created a private class <code>_ClassProperty</code> and then renamed it to <code>class_property</code>. We will ignore the last assignment fron now on:</p>
+<p>I quickly realized descriptors could do the job, but I wasn't sure how. I started with the <code>__init__</code> method of the <code>class_property</code>, that will get the method it decorates as an argument. For naming conventions, I created a private class <code>_ClassProperty</code> and then renamed it to <code>class_property</code>. We will ignore the last assignment from now on:</p>
 <div class="code"><table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
 <span class="normal">3</span>
