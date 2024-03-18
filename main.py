@@ -150,4 +150,4 @@ def format_date(d: datetime.date) -> str:
 
 
 if __name__ == "__main__":
-    site.buildg()
+    site.build()
